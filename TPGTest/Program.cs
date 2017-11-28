@@ -19,20 +19,21 @@ namespace TPGTest
 
             foreach (var item in output)
             {
-                Console.WriteLine(item);
+                Console.WriteLine(item.Name);
             }
         }
 
-        private static List<string> GatherDependencies(string[] dependencies)
+        private static List<Package> GatherDependencies(string[] dependencies)
         {
-            var result = new List<Tuple<string, string>>();
+            var retVal = new List<Package>();
 
             for (int i = 0; i < dependencies.Length; i++)
             {
-                result.Add(new Tuple<string, string>(dependencies[i].Split(':')[0], dependencies[i].Split(':')[1].TrimStart(' ')));
+                var item = new Tuple<string, string>(dependencies[i].Split(':')[0], dependencies[i].Split(':')[1].TrimStart(' '));
+                retVal.Add(item.Item2.Length > 0 ? new Package(item.Item1, new Package(item.Item2)) : new Package(item.Item1));
             }
 
-            return OrderDependencies(result);
+            return retVal.OrderBy(x => x.Dependencies.Count()).ToList();
         }
 
         private static List<string> OrderDependencies(List<Tuple<string, string>> dependencies)
@@ -62,6 +63,18 @@ namespace TPGTest
             }
 
             return retVal;
+        }
+
+        public class Package
+        {
+            public string Name { get; private set; }
+            public Package[] Dependencies { get; private set; }
+
+            public Package(string name, params Package[] dependencies)
+            {
+                Name = name;
+                Dependencies = dependencies;
+            }
         }
 
 
