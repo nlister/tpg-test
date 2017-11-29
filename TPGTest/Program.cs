@@ -12,19 +12,26 @@ namespace TPGTest
     {
         static void Main(string[] args)
         {
-            //string[] args = { "FileProcessor: ProcessingLibrary", "ProcessingLibrary: FileProcessor" };
+            try
+            {
+                string[] packages = Console.ReadLine().Split(',');
 
-            InstallPackages(args);
+                if (packages.Length > 0)
+                    InstallPackages(packages);
+
+                Console.ReadKey();
+            }
+            catch (ArgumentException)
+            {
+                Console.WriteLine("Input was not in correct format. Please enter packages as <Package>: <Dependency>,");
+            }
         }
 
         public static void InstallPackages(string[] packagesToInstall)
         {
             var output = GatherDependencies(packagesToInstall);
 
-            foreach (var l in OrderDependencies<Package>(output, x => x.Dependencies))
-            {
-                Console.WriteLine(l.Name);
-            }
+            Console.WriteLine(string.Join(",", OrderDependencies<Package>(output, x => x.Dependencies).Select(x => x.Name).ToArray()));
         }
 
         private static List<Package> GatherDependencies(string[] dependencies)
@@ -33,7 +40,8 @@ namespace TPGTest
 
             for (int i = 0; i < dependencies.Length; i++)
             {
-                var item = new Tuple<string, string>(dependencies[i].Split(':')[0], dependencies[i].Split(':')[1].TrimStart(' '));
+
+                var item = new Tuple<string, string>(dependencies[i].Split(':')[0].Trim(), dependencies[i].Split(':')[1].Trim());
                 retVal.Add(item.Item2.Length > 0 ? new Package(item.Item1, new Package(item.Item2)) : new Package(item.Item1));
             }
             
