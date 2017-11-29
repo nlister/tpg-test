@@ -8,17 +8,18 @@ using QuickGraph.Collections;
 
 namespace TPGTest
 {
-    class Program
+    public class Program
     {
-        static void Main()
+        static void Main(string[] args)
         {
-            string[] args = { "SupremeLeaderSnoke: ", "Resistance: LeiaOrgana", "LeiaOrgana: AnakinSkywalker",
-            "FirstOrder: SupremeLeaderSnoke", "StarWars: Resistance",  "AnakinSkywalker: "};
-            //string[] args = {"SupremeLeaderSnoke: ", "Resistance: LeiaOrgana", "LeiaOrgana: AnakinSkywalker",
-            //"FirstOrder: SupremeLeaderSnoke", "StarWars: ", "AnakinSkywalker: Resistance", "Resistance: AnakinSkywalker"};
             //string[] args = { "FileProcessor: ProcessingLibrary", "ProcessingLibrary: FileProcessor" };
 
-            var output = GatherDependencies(args);
+            InstallPackages(args);
+        }
+
+        public static void InstallPackages(string[] packagesToInstall)
+        {
+            var output = GatherDependencies(packagesToInstall);
 
             foreach (var l in OrderDependencies<Package>(output, x => x.Dependencies))
             {
