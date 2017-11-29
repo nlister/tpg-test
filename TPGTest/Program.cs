@@ -12,15 +12,15 @@ namespace TPGTest
     {
         static void Main()
         {
-            //string[] args = { "SupremeLeaderSnoke: ", "Resistance: LeiaOrgana", "LeiaOrgana: AnakinSkywalker",
-            //"FirstOrder: SupremeLeaderSnoke", "StarWars: Resistance",  "AnakinSkywalker: "};
+            string[] args = { "SupremeLeaderSnoke: ", "Resistance: LeiaOrgana", "LeiaOrgana: AnakinSkywalker",
+            "FirstOrder: SupremeLeaderSnoke", "StarWars: Resistance",  "AnakinSkywalker: "};
             //string[] args = {"SupremeLeaderSnoke: ", "Resistance: LeiaOrgana", "LeiaOrgana: AnakinSkywalker",
             //"FirstOrder: SupremeLeaderSnoke", "StarWars: ", "AnakinSkywalker: Resistance", "Resistance: AnakinSkywalker"};
-            string[] args = { "FileProcessor: ProcessingLibrary", "ProcessingLibrary: FileProcessor" };
+            //string[] args = { "FileProcessor: ProcessingLibrary", "ProcessingLibrary: FileProcessor" };
 
             var output = GatherDependencies(args);
 
-            foreach (var l in OrderDependencies(output, x => x.Dependencies, new PackageComparer()))
+            foreach (var l in OrderDependencies<Package>(output, x => x.Dependencies))
             {
                 Console.WriteLine(l.Name);
             }
@@ -39,15 +39,17 @@ namespace TPGTest
             return retVal.OrderBy(x => x.Dependencies.Count()).ToList();
         }
 
-        public static List<T> OrderDependencies<T>(ICollection<T> source, Func<T, IEnumerable<T>> getDependencies, IEqualityComparer<T> comparer = null)
+        public static List<Package> OrderDependencies<T>(List<Package> source, Func<Package, IEnumerable<Package>> getDependencies)
         {
-            var visiteds = new Dictionary<T, bool>(comparer);
-            var sorted = new List<T>(source.Count);
-            Action<T> visit = null;
+            var comparer = new PackageComparer();
+            var visiteds = new Dictionary<Package, bool>(comparer);
+            var sorted = new List<Package>(source.Count);
+            Action<Package> visit = null;
+
             visit = item => {
                 if (visiteds.TryGetValue(item, out bool isMarked))
                 {
-                    if (isMarked) return;
+                    if (isMarked && !(source.Any(x => x.Dependencies.Contains(item, comparer) && item.Dependencies.Contains(x, comparer)))) return;
                     throw new ArgumentException("Dependency specification is invalid, it contains cycles.");
                 }
                 var dependencies = getDependencies(item);
