@@ -16,7 +16,7 @@ namespace TPGTest
             {
                 string[] packages = Console.ReadLine().Split(',');
 
-                if (packages.Length > 0)
+                if (packages.Length > 1)
                     InstallPackages(packages);
 
                 Console.ReadKey();
